@@ -55,15 +55,28 @@
     <!-- Coluna de Ação do Técnico -->
     <div class="ticket-sidebar card p-4">
         <h3>Atualizar Atendimento</h3>
-        <form method="post" class="mt-3">
+        <form method="post" class="mt-3" novalidate>
             {% csrf_token %}
+            {% if form_resolver.non_field_errors %}
+                <div class="form-errors-box">
+                    {% for error in form_resolver.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             <div class="form-group mb-3">
                 <label class="form-label">Status do Chamado:</label>
                 {{ form_resolver.status }}
+                {% if form_resolver.status.errors %}
+                    <div class="field-error">{{ form_resolver.status.errors.0 }}</div>
+                {% endif %}
             </div>
             <div class="form-group mb-3">
                 <label class="form-label">Ação / Solução Aplicada:</label>
                 {{ form_resolver.solucao }}
+                {% if form_resolver.solucao.errors %}
+                    <div class="field-error">{{ form_resolver.solucao.errors.0 }}</div>
+                {% endif %}
             </div>
             <button type="submit" class="btn btn-success btn-block">Salvar Atualização</button>
             <a href="{% url 'index' %}" class="btn btn-outline btn-block mt-2">Voltar à Lista</a>
