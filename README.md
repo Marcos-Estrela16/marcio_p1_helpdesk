@@ -37,3 +37,33 @@ python manage.py runserver
 
 Acesse: **`http://127.0.0.1:8000/`**  
 Admin: **`http://127.0.0.1:8000/admin/`** (User: `admin` | Senha: `admin123`)
+
+---
+
+## 📋 3. Relatório das Features Obrigatórias da Avaliação P1
+
+### 🔍 Feature 1 — Busca e Filtro na Listagem Principal
+
+- **Campos e Filtros Escolhidos:**
+  - **Busca Textual Aberta (`q`):** Pesquisa case-insensitive (`icontains`) combinada nos campos `titulo`, `descricao`, `protocolo` e `solicitante_nome`.
+  - **Filtros Categóricos:** Seletores `<select>` para **Status** (`aberto`, `em_atendimento`, `resolvido`, `fechado`), **Prioridade** e **Categoria**.
+  - **Desafio Extra Implementado:** Utilização do objeto `Q()` (`from django.db.models import Q`) para compor dinamicamente a cláusula SQL na mesma consulta, integrando filtros relacionais e a busca textual multifatorial.
+- **Justificativa da Escolha:**
+  Em uma central de suporte técnico ou NOC, o volume de chamados cresce rapidamente. A busca por palavras-chave técnicas (ex: "Postgres", "VPN", "queda") ou pelo nome do cliente e protocolo permite atendimento imediato quando o solicitante entra em contato. Combinar isso com o filtro de status permite que os operadores filtrem rapidamente apenas os chamados em aberto que demandam ação urgente.
+- **O que aconteceria se não existisse:**
+  Os analistas de suporte precisariam percorrer visualmente páginas inteiras de registros para localizar um incidente específico. A ausência de filtros por prioridade e status impediria a identificação ágil de chamados críticos pendentes, resultando no estouro generalizado de prazos de SLA e degradação da qualidade do suporte.
+
+---
+
+### 🛡️ Feature 2 — Validação Customizada no Formulário (ModelForm)
+
+- **Regras de Negócio Implementadas no `clean()`:**
+  1. **Validação do Prazo de SLA (Rubrica Oficial P1):** O prazo de SLA calculado não pode ser anterior ou igual à data de abertura do chamado (`prazo_sla > data_abertura`).
+  2. **Qualidade de Triagem para Incidentes Críticos:** Chamados classificados com prioridade **Crítica** exigem obrigatoriamente um detalhamento técnico do problema com no mínimo 30 caracteres (`clean()`).
+  3. **Validação de Assunto Vago:** O campo de assunto (`titulo`) deve possuir no mínimo 5 caracteres e não aceita termos genéricos como "teste", "ajuda", "problema" ou "socorro" (`clean_titulo()`).
+  4. **Encerramento Técnico com Parecer:** No `ResolverChamadoForm`, a finalização do chamado para "resolvido" ou "fechado" exige o preenchimento de uma solução técnica conclusiva com pelo menos 10 caracteres.
+- **Justificativa da Escolha:**
+  O cálculo automático e a auditoria do SLA são o core business do sistema. Se o prazo projetado fosse igual ou inferior ao instante de criação (como em caso de horas de SLA zeradas ou inconsistência temporal), o chamado já nasceria com status de SLA violado e sem conformidade. Além disso, incidentes críticos disparam escala de plantão; impedir descrições superficiais (ex: "caiu") força o solicitante a fornecer contexto mínimo para diagnóstico imediato.
+- **O que aconteceria se não existisse:**
+  O banco de dados seria corrompido com registros de tickets com prazos de SLA matematicamente absurdos (datas passadas ou nulas), distorcendo os indicadores de conformidade e auditoria. Ademais, analistas perderiam horas preciosas tentando descobrir o que aconteceu em chamados críticos sem qualquer detalhamento técnico.
+
