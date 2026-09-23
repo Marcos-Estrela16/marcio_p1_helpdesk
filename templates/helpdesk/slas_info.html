@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Políticas de SLA & Equipes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Políticas de SLA e Estrutura de Suporte</h2>
+    <p class="subtitle">Definição dos tempos limites acordados por prioridade e equipes responsáveis.</p>
+</div>
+
+<div class="grid-2col mt-4">
+    <div class="card p-3">
+        <h3>Matriz de SLA por Prioridade</h3>
+        <table class="data-table mt-3">
+            <thead>
+                <tr>
+                    <th>Prioridade</th>
+                    <th>Nível</th>
+                    <th>Tempo Máximo (Horas)</th>
+                    <th>Termo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in slas %}
+                <tr>
+                    <td><strong>{{ s.prioridade.nome }}</strong></td>
+                    <td><span class="badge badge-priority-{{ s.prioridade.nivel }}">{{ s.prioridade.nivel }}</span></td>
+                    <td><strong>{{ s.horas_resolucao }} horas</strong></td>
+                    <td>{{ s.descricao }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card p-3">
+        <h3>Equipes Técnicas e Categorias</h3>
+        <div class="mt-3">
+            {% for eq in equipes %}
+            <div class="equipe-card mb-3">
+                <h4>{{ eq.nome }} ({{ eq.email_contato }})</h4>
+                <p class="small text-muted">{{ eq.descricao }}</p>
+                <div class="mt-2">
+                    <small><strong>Categorias Atendidas:</strong></small>
+                    <ul>
+                        {% for cat in eq.categorias.all %}
+                            <li>{{ cat.nome }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

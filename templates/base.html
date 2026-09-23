@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Help Desk & SLA Manager{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-wrapper">
+            <div class="brand">
+                <span class="brand-icon">🎫</span>
+                <div>
+                    <h1 class="brand-title">HelpDesk SLA Manager</h1>
+                    <span class="brand-meta">Aluno: Marcos Vinícius Silva Estrela • Matrícula: 202413893</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="{% url 'index' %}" class="nav-item">Painel de Chamados</a>
+                <a href="{% url 'slas_info' %}" class="nav-item">Políticas de SLA</a>
+                <a href="{% url 'novo_chamado' %}" class="btn btn-primary">+ Abrir Chamado</a>
+                <a href="/admin/" target="_blank" class="nav-item-admin">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        {% if messages %}
+            <div class="notifications">
+                {% for message in messages %}
+                    <div class="notify notify-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+        <div class="nav-wrapper footer-inner">
+            <p>Laboratório de Programação Full Stack — Avaliação P1</p>
+            <p class="text-muted">Tema: Help Desk / Chamados com SLA (Opção 4) • Prof. Márcio Garrido</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chamado.protocolo }} — Detalhes{% endblock %}
+
+{% block content %}
+<div class="ticket-header">
+    <div>
+        <h2>{{ chamado.protocolo }}: {{ chamado.titulo }}</h2>
+        <p class="subtitle">
+            Aberto em: {{ chamado.data_abertura|date:"d/m/Y H:i" }} | Solicitante: <strong>{{ chamado.solicitante_nome }}</strong> ({{ chamado.solicitante_email }})
+        </p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <span class="badge badge-priority-{{ chamado.prioridade.nivel }} p-2">{{ chamado.prioridade.nome }}</span>
+        <span class="badge badge-status-{{ chamado.status }} p-2">{{ chamado.get_status_display }}</span>
+    </div>
+</div>
+
+<div class="ticket-grid mt-4">
+    <!-- Coluna de Informações e SLA -->
+    <div class="ticket-main card p-4">
+        <h3>Descrição do Incidente</h3>
+        <p class="ticket-desc mt-2">{{ chamado.descricao }}</p>
+
+        <div class="sla-box mt-4">
+            <h4>Indicador de SLA</h4>
+            <div class="sla-info-row">
+                <span>Prazo Limite Estabelecido:</span>
+                <strong>{{ chamado.prazo_sla|date:"d/m/Y H:i" }}</strong>
+            </div>
+            <div class="sla-info-row">
+                <span>Conformidade Atual:</span>
+                {% if chamado.dentro_do_prazo %}
+                    <strong class="text-success">✓ DENTRO DO PRAZO DE SLA</strong>
+                {% else %}
+                    <strong class="text-danger">⚠ SLA VIOLADO / ATRASADO</strong>
+                {% endif %}
+            </div>
+            {% if chamado.data_resolucao %}
+                <div class="sla-info-row">
+                    <span>Data de Resolução:</span>
+                    <strong>{{ chamado.data_resolucao|date:"d/m/Y H:i" }}</strong>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if chamado.solucao %}
+            <div class="solucao-box mt-4">
+                <h4>Parecer Técnico Conclusivo:</h4>
+                <p>{{ chamado.solucao }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Coluna de Ação do Técnico -->
+    <div class="ticket-sidebar card p-4">
+        <h3>Atualizar Atendimento</h3>
+        <form method="post" class="mt-3">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <label class="form-label">Status do Chamado:</label>
+                {{ form_resolver.status }}
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Ação / Solução Aplicada:</label>
+                {{ form_resolver.solucao }}
+            </div>
+            <button type="submit" class="btn btn-success btn-block">Salvar Atualização</button>
+            <a href="{% url 'index' %}" class="btn btn-outline btn-block mt-2">Voltar à Lista</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
