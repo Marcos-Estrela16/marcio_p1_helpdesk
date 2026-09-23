@@ -30,11 +30,70 @@
 
 <div class="card p-3 mt-4">
     <div class="table-header">
-        <h3>Lista de Protocolos Ativos</h3>
+        <div>
+            <h3>Lista de Protocolos Ativos</h3>
+            {% if filtros_ativos %}
+                <span class="text-muted" style="font-size: 0.85rem;">Exibindo {{ total_filtrados }} de {{ total_chamados }} chamado(s)</span>
+            {% endif %}
+        </div>
         <a href="{% url 'novo_chamado' %}" class="btn btn-sm btn-primary">+ Novo Chamado</a>
     </div>
 
-    {% if chamados %}
+    <!-- Barra de Busca e Filtros (Feature 1 - Busca e Filtro na Listagem) -->
+    <form method="get" class="filter-form mt-3">
+        <div class="filter-grid">
+            <div class="filter-col search-col">
+                <label class="filter-label" for="id_search">Buscar por texto:</label>
+                <input 
+                    type="text" 
+                    id="id_search"
+                    name="q" 
+                    class="form-control" 
+                    placeholder="Assunto, protocolo, solicitante ou detalhe..." 
+                    value="{{ request.GET.q }}"
+                >
+            </div>
+            <div class="filter-col">
+                <label class="filter-label" for="id_status">Status:</label>
+                <select id="id_status" name="status" class="form-select">
+                    <option value="">Todos os status</option>
+                    <option value="aberto" {% if request.GET.status == "aberto" %}selected{% endif %}>Aberto</option>
+                    <option value="em_atendimento" {% if request.GET.status == "em_atendimento" %}selected{% endif %}>Em Atendimento</option>
+                    <option value="resolvido" {% if request.GET.status == "resolvido" %}selected{% endif %}>Resolvido</option>
+                    <option value="fechado" {% if request.GET.status == "fechado" %}selected{% endif %}>Fechado</option>
+                </select>
+            </div>
+            <div class="filter-col">
+                <label class="filter-label" for="id_prioridade">Prioridade:</label>
+                <select id="id_prioridade" name="prioridade" class="form-select">
+                    <option value="">Todas as prioridades</option>
+                    {% for p in prioridades %}
+                        <option value="{{ p.id }}" {% if request.GET.prioridade == p.id|stringformat:"s" %}selected{% endif %}>
+                            {{ p.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-col">
+                <label class="filter-label" for="id_categoria">Categoria:</label>
+                <select id="id_categoria" name="categoria" class="form-select">
+                    <option value="">Todas as categorias</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if request.GET.categoria == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary" id="btn-filtrar">🔍 Filtrar</button>
+                {% if filtros_ativos %}
+                    <a href="{% url 'index' %}" class="btn btn-outline" id="btn-limpar">✕ Limpar</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
     <table class="data-table mt-3">
         <thead>
             <tr>
@@ -74,11 +133,22 @@
                     <a href="{% url 'detalhes_chamado' c.id %}" class="btn btn-sm btn-outline">Ver / Tratar</a>
                 </td>
             </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="empty-state">
+                    {% if filtros_ativos %}
+                        <p class="empty-title">Nenhum chamado encontrado</p>
+                        <p class="empty-subtitle">Não foram encontrados chamados com os filtros aplicados ("{{ request.GET.q }}").</p>
+                        <a href="{% url 'index' %}" class="btn btn-sm btn-outline mt-2">Limpar filtros e ver todos</a>
+                    {% else %}
+                        <p class="empty-title">Nenhum chamado aberto na fila</p>
+                        <p class="empty-subtitle">Abra o primeiro chamado técnico clicando no botão abaixo.</p>
+                        <a href="{% url 'novo_chamado' %}" class="btn btn-sm btn-primary mt-2">+ Novo Chamado</a>
+                    {% endif %}
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-        <p class="text-center p-4">Nenhum chamado aberto. Abra o primeiro chamado acima.</p>
-    {% endif %}
 </div>
 {% endblock %}
